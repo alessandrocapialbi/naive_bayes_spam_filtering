@@ -74,7 +74,7 @@ def classify(message):
     else:
         return 'needs human classification' #The algorithm cannot give an answer, so it needs an human.
 
-test_data['predicted'] = test_data['SMS'].apply(classify) #For each sentence the classify function will be called. The input parameter is teh sentence itself.
+test_data['predicted'] = test_data['SMS'].apply(classify) #For each sentence the classify function will be called. The input parameter is the sentence itself.
 
 print(test_data.head())
 
