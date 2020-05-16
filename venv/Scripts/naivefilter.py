@@ -4,7 +4,8 @@ import pandas as pd #pandas is a fast data analysis and manipulation tool.
 #It represents the dataset.
 sms_data = pd.read_csv('SMSSpamCollection', header=None, sep='\t', names=['Label', 'SMS'])
 
-#I'm going to work on a copy of the SMS' array
+#I'm going to work on a copy of the SMS' array.
+
 sms_data_clean = sms_data.copy()
 
 #Get the whole sentences, remove the punctuation, convert the text into the lower-case, splitting words.
@@ -18,8 +19,9 @@ sms_data_clean['SMS'] = sms_data_clean['SMS'].str.split();
 
 #Split to train and test data.
 
+#Train data are going to be 80% of the whole dataset chosen randomly. reset_index resets the array's index order from 0 to the final index.
 train_data = sms_data_clean.sample(frac=0.8, random_state=1).reset_index(drop=True)
-test_data = sms_data_clean.drop(train_data.index).reset_index(drop=True)
+test_data = sms_data_clean.drop(train_data.index).reset_index(drop=True) #These are the 20% left data.
 train_data = train_data.reset_index(drop=True)
 
 #Prepare vocabulary - the list of all the words from the dataset
@@ -34,7 +36,7 @@ word_counts_per_sms = pd.DataFrame([
 
 train_data = pd.concat([train_data.reset_index(), word_counts_per_sms], axis=1).iloc[:,1:]
 
-#Calculate values for the Bayes formula
+#Calculate values for the Bayes formula.
 
 alpha=1
 Nvoc = len(train_data.columns) - 3 #The number of unique words in the whole dataset.
@@ -60,18 +62,20 @@ def p_w_ham(word):
 #Prepare the classificator
 
 def classify(message):
-    p_spam_given_message = Pspam #The spam message.
-    p_ham_given_message = Pham #The non-spam message.
+    p_spam_given_message = Pspam #The probability to be a spam message.
+    p_ham_given_message = Pham #The probability to be a non-spam message.
     for word in message:
         p_spam_given_message *= p_w_spam(word) #Probability that the message is spam.
         p_ham_given_message *= p_w_ham(word) #Probability that the message is non-spam.
     if p_ham_given_message > p_spam_given_message:
-        return 'ham' #It's nom-spam.
+        return 'ham' #It's non-spam.
     elif p_ham_given_message < p_spam_given_message:
         return 'spam' #It's spam.
     else:
         return 'needs human classification' #The algorithm cannot give an answer, so it needs an human.
 
-test_data['predicted'] = test_data['SMS'].apply(classify)
+test_data['predicted'] = test_data['SMS'].apply(classify) #For each sentence the classify function will be called. The input parameter is teh sentence itself.
 
-correct = (test_data['predicted'] == test_data['Label']).sum() / test_data.shape[0] * 100
+print(test_data.head())
+
+
